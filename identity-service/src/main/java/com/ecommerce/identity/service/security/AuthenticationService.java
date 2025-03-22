@@ -1,5 +1,6 @@
 package com.ecommerce.identity.service.security;
 
+import com.ecommerce.event.dto.NotificationEvent;
 import com.ecommerce.identity.dto.request.AuthenticationRequest;
 import com.ecommerce.identity.dto.request.IntrospectRequest;
 import com.ecommerce.identity.dto.request.ProfileCreationRequest;
@@ -14,10 +15,6 @@ import com.ecommerce.identity.repository.feignClient.ProfileClient;
 import com.ecommerce.identity.service.UserService;
 import com.ecommerce.identity.service.impl.JwtService;
 import com.ecommerce.identity.service.redis.TokenRedisService;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.SignedJWT;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,8 +32,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Service
@@ -50,7 +45,7 @@ public class AuthenticationService {
     TokenRedisService tokenRedisService;
     ProfileClient profileClient;
     ModelMapper modelMapper;
-    KafkaTemplate<String, String> kafkaTemplate;
+    KafkaTemplate<String, Object> kafkaTemplate;
 
     @NonFinal
     @Value("${spring.application.security.jwt.secret-key}")
@@ -77,8 +72,15 @@ public class AuthenticationService {
 
         profileClient.createProfile(profileRequest);
 
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(request.getEmail())
+                .subject("Welcome to bookteria")
+                .body("Hello, " + request.getUsername())
+                .build();
+
         // Publish message to kafka
-        kafkaTemplate.send("onboard-successful", "Welcome our new member " + userSaver.getUsername());
+        kafkaTemplate.send("notification-delivery", notificationEvent);
 
         var jwtToken = jwtService.generateToken(userSaver);
         var refreshToken = jwtService.generateRefreshToken(userSaver);

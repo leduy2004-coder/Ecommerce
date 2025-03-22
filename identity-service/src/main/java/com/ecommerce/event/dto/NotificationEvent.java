@@ -1,4 +1,4 @@
-package com.ecommerce.notification.dto.request;
+package com.ecommerce.event.dto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,15 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
+import java.util.Map;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EmailRequest {
-    String toEmail;
+public class NotificationEvent {
+    String channel;
+    String recipient;
+    String templateCode;
+    Map<String, Object> param;
     String subject;
     String body;
 }
