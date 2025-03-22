@@ -1,0 +1,31 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /notification
+spring:
+  application:
+    name: notification-service
+  data:
+    mongodb:
+      uri: mongodb://127.0.0.1:27017/notification-service
+
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: leduy8762@gmail.com
+    password: iubulxdciniwveba
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    protocol: smtp

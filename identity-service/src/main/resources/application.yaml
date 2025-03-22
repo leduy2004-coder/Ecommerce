@@ -1,0 +1,100 @@
+server:
+  port: ${API_PORT:8080}
+  servlet:
+    context-path: /identity
+
+app:
+  services:
+    profile: http://localhost:8081/profile
+
+
+spring:
+
+#  config:
+#    import: optional:file:.env[.properties]
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  cache:
+    type: redis
+  data:
+
+    redis:
+      repositories:
+        enabled: false
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASS}
+      ssl:
+        enabled: true
+
+
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://${DATABASE_URL}:${DATABASE_PORT};databaseName=Identity;encrypt=true;trustServerCertificate=true;
+#    url: jdbc:sqlserver://localhost:1433;databaseName=Identity;encrypt=true;trustServerCertificate=true;
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+    hikari:
+      minimum-idle: 10         # Đảm bảo có đủ kết nối tối thiểu
+      maximum-pool-size: 30    # Tăng số kết nối tối đa nếu cần thiết
+      idle-timeout: 30000      # Thời gian chờ kết nối không sử dụng trước khi đóng
+      max-lifetime: 1800000    # Thời gian tối đa mỗi kết nối sống
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    defer-datasource-initialization: true
+    open-in-view: false
+
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+  application:
+    name: identity-service
+    security:
+      jwt:
+        secret-key: ${JWT_SECRET_KEY}
+        expiration: 3600000     # 1 h in milliseconds
+        refresh-token:
+          expiration: 604800000 # 7 days in milliseconds
+
+  security:
+    oauth2:
+      resource server:
+        jwt:
+          issuer-uri: http://localhost:8080/issuer
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${GOOGLE_CLIENT_URL_REDIRECT}
+            scope:
+              - email
+              - profile
+
+          facebook:
+            client-id: ${FACEBOOK_CLIENT_ID}
+            client-secret: ${FACEBOOK_CLIENT_SECRET}
+            redirect-uri: ${FACEBOOK_CLIENT_URL_REDIRECT}
+            scope:
+              - email
+              - public_profile
+
+
+
+
+
