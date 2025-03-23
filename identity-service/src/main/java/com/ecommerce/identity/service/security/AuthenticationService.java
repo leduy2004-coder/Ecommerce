@@ -84,7 +84,7 @@ public class AuthenticationService {
 
         var jwtToken = jwtService.generateToken(userSaver);
         var refreshToken = jwtService.generateRefreshToken(userSaver);
-        tokenRedisService.saveRefreshToken(userSaver.getUsername(), refreshToken);
+        tokenRedisService.saveRefreshToken(userSaver.getId(), refreshToken);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -104,7 +104,7 @@ public class AuthenticationService {
 
             jwtToken = jwtService.generateToken(user);
             refreshToken = jwtService.generateRefreshToken(user);
-            tokenRedisService.saveRefreshToken(user.getUsername(), refreshToken);
+            tokenRedisService.saveRefreshToken(user.getId(), refreshToken);
 
         } catch (Exception e) {
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
@@ -137,7 +137,7 @@ public class AuthenticationService {
             String newAccessToken = jwtService.generateToken(user);
             String newRefreshToken = jwtService.generateRefreshToken(user);
             assert user != null;
-            tokenRedisService.saveRefreshToken(user.getUsername(), newRefreshToken);
+            tokenRedisService.saveRefreshToken(user.getId(), newRefreshToken);
 
             return AuthenticationResponse.builder()
                     .accessToken(newAccessToken)

@@ -54,7 +54,6 @@ public class JwtService {
     ) {
         // Thêm quyền vào claim
         extraClaims.put("roles", buildScope(userDetails));
-        extraClaims.put("userId", userDetails.getId());
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
@@ -71,7 +70,7 @@ public class JwtService {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(userDetails.getId())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
