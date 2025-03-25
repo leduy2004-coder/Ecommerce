@@ -1,8 +1,10 @@
 package com.ecommerce.profile.service;
 
-import com.ecommerce.profile.dto.ProfileCreationRequest;
-import com.ecommerce.profile.dto.UserProfileResponse;
+import com.ecommerce.profile.dto.request.ProfileCreationRequest;
+import com.ecommerce.profile.dto.response.UserProfileResponse;
 import com.ecommerce.profile.entity.UserProfile;
+import com.ecommerce.profile.exception.AppException;
+import com.ecommerce.profile.exception.ErrorCode;
 import com.ecommerce.profile.repository.UserProfileRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,14 @@ public class UserProfileService {
     public UserProfileResponse getProfile(String id) {
         UserProfile userProfile =
                 userProfileRepository.findById(id).orElseThrow(() -> new RuntimeException("Profile not found"));
+
+        return userProfileMapper.map(userProfile, UserProfileResponse.class);
+    }
+
+    public UserProfileResponse getByUserId(String userId) {
+        UserProfile userProfile =
+                userProfileRepository.findByUserId(userId)
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userProfileMapper.map(userProfile, UserProfileResponse.class);
     }

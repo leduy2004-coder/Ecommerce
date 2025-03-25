@@ -1,7 +1,6 @@
 package com.ecommerce.profile.controller;
 
-import com.ecommerce.profile.dto.ProfileCreationRequest;
-import com.ecommerce.profile.dto.UserProfileResponse;
+import com.ecommerce.profile.dto.response.UserProfileResponse;
 import com.ecommerce.profile.service.UserProfileService;
 import org.springframework.web.bind.annotation.*;
 
