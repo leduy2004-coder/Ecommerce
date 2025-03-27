@@ -1,8 +1,8 @@
 package com.ecommerce.identity.repository.feignClient;
 
 import com.ecommerce.identity.config.AuthenticationRequestInterceptor;
-import com.ecommerce.identity.dto.request.ProfileCreationRequest;
 import com.ecommerce.identity.dto.response.UserProfileResponse;
+import org.example.ProfileCreationRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;

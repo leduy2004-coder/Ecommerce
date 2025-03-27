@@ -1,16 +1,16 @@
 package com.ecommerce.identity.controller;
 
 import com.ecommerce.identity.dto.request.AuthenticationRequest;
-import com.ecommerce.identity.dto.request.IntrospectRequest;
 import com.ecommerce.identity.dto.response.ApiResponse;
 import com.ecommerce.identity.dto.response.AuthenticationResponse;
-import com.ecommerce.identity.dto.response.IntrospectResponse;
 import com.ecommerce.identity.service.security.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.IntrospectRequest;
+import org.example.IntrospectResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;

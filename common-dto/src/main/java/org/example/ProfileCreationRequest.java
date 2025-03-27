@@ -1,4 +1,4 @@
-package com.ecommerce.profile.dto.request;
+package org.example;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

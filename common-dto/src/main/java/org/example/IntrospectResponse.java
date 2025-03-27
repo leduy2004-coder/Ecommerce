@@ -1,4 +1,4 @@
-package com.ecommerce.identity.dto.response;
+package org.example;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

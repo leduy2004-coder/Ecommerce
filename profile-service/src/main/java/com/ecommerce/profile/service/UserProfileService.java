@@ -1,11 +1,11 @@
 package com.ecommerce.profile.service;
 
-import com.ecommerce.profile.dto.request.ProfileCreationRequest;
 import com.ecommerce.profile.dto.response.UserProfileResponse;
 import com.ecommerce.profile.entity.UserProfile;
 import com.ecommerce.profile.exception.AppException;
 import com.ecommerce.profile.exception.ErrorCode;
 import com.ecommerce.profile.repository.UserProfileRepository;
+import org.example.ProfileCreationRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 

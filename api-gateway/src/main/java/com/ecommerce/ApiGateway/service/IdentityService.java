@@ -2,12 +2,12 @@ package com.ecommerce.ApiGateway.service;
 
 
 import com.ecommerce.ApiGateway.dto.ApiResponse;
-import com.ecommerce.ApiGateway.dto.request.IntrospectRequest;
-import com.ecommerce.ApiGateway.dto.response.IntrospectResponse;
 import com.ecommerce.ApiGateway.repository.IdentityClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.IntrospectRequest;
+import org.example.IntrospectResponse;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
