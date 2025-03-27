@@ -23,6 +23,7 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.example.IntrospectRequest;
 import org.example.IntrospectResponse;
+import org.example.ProfileCreationRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;

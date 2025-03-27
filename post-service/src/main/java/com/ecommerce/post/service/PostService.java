@@ -3,7 +3,7 @@ package com.ecommerce.post.service;
 import com.ecommerce.post.dto.PageResponse;
 import com.ecommerce.post.dto.request.PostRequest;
 import com.ecommerce.post.dto.response.PostResponse;
-import com.ecommerce.post.entity.Post;
+import com.ecommerce.post.entity.PostEntity;
 import com.ecommerce.post.repository.PostRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class PostService {
     public PostResponse createPost(PostRequest request){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Post post = Post.builder()
+        PostEntity post = PostEntity.builder()
                 .content(request.getContent())
                 .userId(authentication.getName())
                 .createdDate(Instant.now())

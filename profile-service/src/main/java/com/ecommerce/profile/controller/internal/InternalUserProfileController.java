@@ -1,4 +1,4 @@
-package com.ecommerce.profile.controller;
+package com.ecommerce.profile.controller.internal;
 
 
 import com.ecommerce.profile.dto.ApiResponse;

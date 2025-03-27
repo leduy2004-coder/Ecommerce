@@ -1,4 +1,4 @@
-package com.ecommerce.post.entity;
+package com.ecommerce.file.entity;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -6,20 +6,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.MongoId;
-
-import java.time.Instant;
 
 @Getter
 @Setter
 @Builder
-@Document(value = "post")
+@Document(value = "user_image")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Post {
-    @MongoId
-    String id;
+public class UserImageEntity extends BaseEntity{
     String userId;
-    String content;
-    Instant createdDate;
-    Instant modifiedDate;
+    private String name;
+    private String url;
+    private String publicId;
 }
