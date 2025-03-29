@@ -19,21 +19,29 @@ import java.io.IOException;
 public class InternalFileController {
     FileService fileService;
 
-    @PostMapping("/internal/post/upload")
+    @PostMapping("/internal/file/post/upload")
     ApiResponse<CloudinaryResponse> uploadMediaPost(@RequestParam("file") MultipartFile file,
                                                     @RequestParam("postId") String postId) throws IOException {
         return ApiResponse.<CloudinaryResponse>builder()
                 .result(fileService.uploadFile(file, ImageType.POST, postId))
                 .build();
     }
-    @PostMapping("/internal/user/upload")
-    ApiResponse<CloudinaryResponse> uploadMediaUser(@RequestParam("file") MultipartFile file,
+
+    @PostMapping("/internal/file/create-avatar")
+    ApiResponse<CloudinaryResponse> uploadMediaUser(@RequestParam("url") String url,
                                         @RequestParam("userId") String userId) throws IOException {
+        return ApiResponse.<CloudinaryResponse>builder()
+                .result(fileService.createAvatar(userId,url))
+                .build();
+    }
+    @PostMapping("/internal/file/user/upload")
+    ApiResponse<CloudinaryResponse> uploadAvatar(@RequestParam("file") MultipartFile file,
+                                                    @RequestParam("userId") String userId) throws IOException {
         return ApiResponse.<CloudinaryResponse>builder()
                 .result(fileService.uploadFile(file, ImageType.AVATAR, userId))
                 .build();
     }
-    @PostMapping("/internal/product/upload")
+    @PostMapping("/internal/file/product/upload")
     ApiResponse<CloudinaryResponse> uploadMediaProduct(@RequestParam("file") MultipartFile file,
                                            @RequestParam("productId") String productId) throws IOException {
         return ApiResponse.<CloudinaryResponse>builder()

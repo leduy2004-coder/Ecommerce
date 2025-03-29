@@ -1,4 +1,4 @@
-package com.ecommerce.profile.dto.response;
+package org.example;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserProfileResponse {
+public class ProfileCreationResponse {
     String id;
     String userId;
     String email;

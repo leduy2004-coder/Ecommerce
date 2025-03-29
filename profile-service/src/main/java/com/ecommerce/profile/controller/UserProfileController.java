@@ -1,7 +1,7 @@
 package com.ecommerce.profile.controller;
 
-import com.ecommerce.profile.dto.response.UserProfileResponse;
 import com.ecommerce.profile.service.UserProfileService;
+import org.example.ProfileCreationResponse;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -15,7 +15,7 @@ public class UserProfileController {
     UserProfileService userProfileService;
 
     @GetMapping("/users/{profileId}")
-    UserProfileResponse getProfile(@PathVariable String profileId) {
+    ProfileCreationResponse getProfile(@PathVariable String profileId) {
         return userProfileService.getProfile(profileId);
     }
 }

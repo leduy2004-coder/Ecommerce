@@ -6,6 +6,7 @@ import com.ecommerce.file.entity.UserImageEntity;
 import com.ecommerce.file.repository.PostRepository;
 import com.ecommerce.file.repository.ProductRepository;
 import com.ecommerce.file.repository.UserRepository;
+import com.ecommerce.file.utility.AvatarType;
 import com.ecommerce.file.utility.ImageType;
 import com.ecommerce.file.utility.ImageUtils;
 import lombok.AccessLevel;
@@ -14,8 +15,6 @@ import lombok.experimental.FieldDefaults;
 import org.example.CloudinaryResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +25,7 @@ public class FileService {
     PostRepository postRepository;
     ProductRepository productRepository;
 
-    public CloudinaryResponse uploadFile(MultipartFile file, ImageType imageType, String id) throws IOException {
+    public CloudinaryResponse uploadFile(MultipartFile file, ImageType imageType, String id) {
         ImageUtils.assertAllowed(file, ImageUtils.IMAGE_PATTERN);
         String fileName = ImageUtils.getFileName(file.getOriginalFilename());
         CloudinaryResponse response = cloudinaryService.uploadFile(file, fileName);
@@ -41,6 +40,7 @@ public class FileService {
             userRepository.save(UserImageEntity.builder()
                     .userId(id)
                     .name(fileName)
+                    .avatarType(AvatarType.LOCAL)
                     .url(response.getUrl())
                     .publicId(response.getPublicId())
                     .build());
@@ -55,5 +55,14 @@ public class FileService {
         return CloudinaryResponse.builder()
                 .publicId(response.getPublicId())
                 .url(response.getUrl()).build();
+    }
+    public CloudinaryResponse createAvatar(String id, String url) {
+            userRepository.save(UserImageEntity.builder()
+                    .userId(id)
+                    .avatarType(AvatarType.OAUTH2)
+                    .url(url)
+                    .build());
+        return CloudinaryResponse.builder()
+                .url(url).build();
     }
 }

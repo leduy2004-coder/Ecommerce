@@ -1,6 +1,6 @@
 package com.ecommerce.identity.exception;
 
-import com.ecommerce.identity.dto.response.ApiResponse;
+import com.ecommerce.identity.dto.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductImageEntity extends BaseEntity{
     String productId;
-    private String name;
-    private String url;
-    private String publicId;
+    String name;
+    String url;
+    String publicId;
 }

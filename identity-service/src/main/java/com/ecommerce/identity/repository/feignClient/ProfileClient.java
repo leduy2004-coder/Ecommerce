@@ -1,8 +1,8 @@
 package com.ecommerce.identity.repository.feignClient;
 
 import com.ecommerce.identity.config.AuthenticationRequestInterceptor;
-import com.ecommerce.identity.dto.response.UserProfileResponse;
 import org.example.ProfileCreationRequest;
+import org.example.ProfileCreationResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,5 +12,5 @@ import org.springframework.web.bind.annotation.RequestBody;
         configuration = {AuthenticationRequestInterceptor.class})
 public interface ProfileClient {
     @PostMapping(value = "/internal/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    UserProfileResponse createProfile(@RequestBody ProfileCreationRequest request);
+    ProfileCreationResponse createProfile(@RequestBody ProfileCreationRequest request);
 }

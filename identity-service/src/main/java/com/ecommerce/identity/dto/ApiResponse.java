@@ -1,4 +1,4 @@
-package com.ecommerce.identity.dto.response;
+package com.ecommerce.identity.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

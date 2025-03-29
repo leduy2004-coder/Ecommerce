@@ -1,8 +1,9 @@
 package com.ecommerce.identity.controller;
 
 import com.ecommerce.identity.dto.request.AuthenticationRequest;
-import com.ecommerce.identity.dto.response.ApiResponse;
+import com.ecommerce.identity.dto.ApiResponse;
 import com.ecommerce.identity.dto.response.AuthenticationResponse;
+import com.ecommerce.identity.service.OAuth2UserService;
 import com.ecommerce.identity.service.security.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,7 +23,7 @@ import java.io.IOException;
 public class AuthenticationController {
 
     AuthenticationService service;
-
+    OAuth2UserService oAuth2UserService;
 
     @PostMapping("/authenticate")
     public ApiResponse<AuthenticationResponse> authenticate(
@@ -42,6 +43,13 @@ public class AuthenticationController {
     ) throws IOException {
         return ApiResponse.<AuthenticationResponse>builder().result(service.refreshToken(request, response)).build();
     }
-
+    @PostMapping("/oauth2")
+    ApiResponse<AuthenticationResponse> outboundAuthenticate(
+            @RequestParam("code") String code,
+            @RequestParam("provider") String provider
+    ){
+        var result = oAuth2UserService.getUserInfo(provider,code);
+        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
+    }
 
 }

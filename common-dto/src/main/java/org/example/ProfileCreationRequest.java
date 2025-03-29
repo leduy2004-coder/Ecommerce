@@ -12,7 +12,6 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProfileCreationRequest {
     String userId;
-
     String email;
     Date dateOfBirth;
     Boolean gender;

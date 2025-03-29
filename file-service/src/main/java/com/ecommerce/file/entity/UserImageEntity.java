@@ -1,5 +1,6 @@
 package com.ecommerce.file.entity;
 
+import com.ecommerce.file.utility.AvatarType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +15,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserImageEntity extends BaseEntity{
     String userId;
-    private String name;
-    private String url;
-    private String publicId;
+    String name;
+    String url;
+    String publicId;
+
+    AvatarType avatarType;
 }

@@ -2,7 +2,7 @@ package com.ecommerce.identity.controller;
 
 
 import com.ecommerce.identity.dto.request.UserRequest;
-import com.ecommerce.identity.dto.response.ApiResponse;
+import com.ecommerce.identity.dto.ApiResponse;
 import com.ecommerce.identity.dto.response.AuthenticationResponse;
 import com.ecommerce.identity.dto.response.UserResponse;
 import com.ecommerce.identity.entity.UserEntity;

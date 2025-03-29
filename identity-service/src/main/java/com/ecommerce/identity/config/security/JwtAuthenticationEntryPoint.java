@@ -3,7 +3,7 @@ package com.ecommerce.identity.config.security;
 import java.io.IOException;
 
 
-import com.ecommerce.identity.dto.response.ApiResponse;
+import com.ecommerce.identity.dto.ApiResponse;
 import com.ecommerce.identity.exception.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

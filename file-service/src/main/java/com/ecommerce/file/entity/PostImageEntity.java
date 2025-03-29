@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostImageEntity extends BaseEntity{
     String postId;
-    private String name;
-    private String url;
-    private String publicId;
+    String name;
+    String url;
+    String publicId;
 }

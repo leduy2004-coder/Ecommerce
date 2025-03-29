@@ -75,7 +75,7 @@ public class AuthenticationService {
         NotificationEvent notificationEvent = NotificationEvent.builder()
                 .channel("EMAIL")
                 .recipient(request.getEmail())
-                .subject("Welcome to bookteria")
+                .subject("Welcome to ecommerce")
                 .body("Hello, " + request.getUsername())
                 .build();
 
