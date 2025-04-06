@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.ChannelNotify;
 
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NotificationEvent {
-    String channel;
+    ChannelNotify channel;
     String recipient;
     String templateCode;
     Map<String, Object> param;

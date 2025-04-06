@@ -1,4 +1,4 @@
-package com.ecommerce.identity.config;
+package com.ecommerce.product.config.security;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.extern.slf4j.Slf4j;

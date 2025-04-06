@@ -1,0 +1,40 @@
+server:
+  port: 8085
+  servlet:
+    context-path: /product
+spring:
+  application:
+    name: product-service
+  data:
+    mongodb:
+      uri: mongodb://127.0.0.1:27017/product-service
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 40MB
+      max-request-size: 40MB
+  cloud:
+    openfeign:
+      httpclient:
+        connection-timeout: 10000
+
+app:
+  services:
+    file:
+      url: http://localhost:8084/file
+
+payment:
+  vnPay:
+    url: ${PAY_URL}
+    tmnCode: ${TMN_CODE}
+    secretKey: ${SECRET_KEY}
+    returnUrl: ${RETURN_URL}
+    version: ${VERSION}
+    command: ${COMMAND}
+    orderType: ${ORDER_TYPE}
+    returnUrlAfterPayment: ${RETURN_URL_AFTER_PAYMENT}

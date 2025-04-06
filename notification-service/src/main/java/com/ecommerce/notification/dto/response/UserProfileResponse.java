@@ -1,4 +1,4 @@
-package com.ecommerce.notification.dto;
+package com.ecommerce.notification.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

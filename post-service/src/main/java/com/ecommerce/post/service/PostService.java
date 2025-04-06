@@ -57,7 +57,7 @@ public class PostService {
 
         return PageResponse.<PostResponse>builder()
                 .currentPage(page)
-                .pageSize(pageData.getSize())
+                .pageSize(pageData.getSize())    
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(postList)

@@ -17,8 +17,8 @@ public class InternalUserProfileController {
     UserProfileService userProfileService;
 
     @PostMapping("/internal/users")
-    ProfileCreationResponse createProfile(@RequestBody ProfileCreationRequest request) {
-        return userProfileService.createProfile(request);
+    ApiResponse<ProfileCreationResponse> createProfile(@RequestBody ProfileCreationRequest request) {
+        return ApiResponse.<ProfileCreationResponse>builder().result(userProfileService.createProfile(request)).build();
     }
 
     @GetMapping("/internal/users/{userId}")

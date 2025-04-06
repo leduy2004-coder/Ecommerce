@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.example.ChannelNotify;
 import org.example.IntrospectRequest;
 import org.example.IntrospectResponse;
 import org.example.ProfileCreationRequest;
@@ -73,7 +74,7 @@ public class AuthenticationService {
         profileClient.createProfile(profileRequest);
 
         NotificationEvent notificationEvent = NotificationEvent.builder()
-                .channel("EMAIL")
+                .channel(ChannelNotify.EMAIL)
                 .recipient(request.getEmail())
                 .subject("Welcome to ecommerce")
                 .body("Hello, " + request.getUsername())

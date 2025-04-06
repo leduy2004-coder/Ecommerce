@@ -3,18 +3,13 @@ package com.ecommerce.notification.dto;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
-
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProfileCreationRequest {
+public class NotifyWebSKDTO {
     String userId;
-
-    String email;
-    Date dateOfBirth;
-    Boolean gender;
-    String nickName;
+    String productId;
+    String content;
 }

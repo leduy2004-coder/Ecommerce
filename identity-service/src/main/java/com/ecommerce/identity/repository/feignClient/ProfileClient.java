@@ -1,6 +1,6 @@
 package com.ecommerce.identity.repository.feignClient;
 
-import com.ecommerce.identity.config.AuthenticationRequestInterceptor;
+import com.ecommerce.identity.config.security.AuthenticationRequestInterceptor;
 import org.example.ProfileCreationRequest;
 import org.example.ProfileCreationResponse;
 import org.springframework.cloud.openfeign.FeignClient;

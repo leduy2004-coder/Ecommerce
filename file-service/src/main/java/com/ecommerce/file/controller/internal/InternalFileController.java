@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.CloudinaryResponse;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,14 +37,14 @@ public class InternalFileController {
     }
     @PostMapping("/internal/file/user/upload")
     ApiResponse<CloudinaryResponse> uploadAvatar(@RequestParam("file") MultipartFile file,
-                                                    @RequestParam("userId") String userId) throws IOException {
+                                                    @RequestParam("userId") String userId)  {
         return ApiResponse.<CloudinaryResponse>builder()
                 .result(fileService.uploadFile(file, ImageType.AVATAR, userId))
                 .build();
     }
-    @PostMapping("/internal/file/product/upload")
-    ApiResponse<CloudinaryResponse> uploadMediaProduct(@RequestParam("file") MultipartFile file,
-                                           @RequestParam("productId") String productId) throws IOException {
+    @PostMapping(value = "/internal/file/product/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ApiResponse<CloudinaryResponse> uploadMediaProduct(@RequestPart("file") MultipartFile file ,
+                                           @RequestPart("productId") String productId) {
         return ApiResponse.<CloudinaryResponse>builder()
                 .result(fileService.uploadFile(file, ImageType.PRODUCT, productId))
                 .build();
