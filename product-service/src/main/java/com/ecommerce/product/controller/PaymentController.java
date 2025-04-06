@@ -39,7 +39,6 @@ public class PaymentController {
                                                            @RequestParam(value = "vnp_ResponseCode") String code,
                                                            @RequestParam(value = "vnp_Amount") String amount,
                                                            @RequestParam(value = "vnp_BankCode") String bankCode,
-                                                           @RequestParam(value = "userId") String userId,
                                                            @RequestParam(value = "productId") String productId
     ) throws IOException {
         response.sendRedirect(vnp_ReturnUrl);
@@ -48,7 +47,6 @@ public class PaymentController {
                 .amount(Integer.parseInt(amount))
                 .code(code)
                 .bankCode(bankCode)
-                .userId(userId)
                 .build());
         return ApiResponse.<PaymentResponse>builder().result(paymentDTO).build();
 

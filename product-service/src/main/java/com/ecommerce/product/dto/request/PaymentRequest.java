@@ -16,5 +16,4 @@ public class PaymentRequest {
         String productId;
         Integer amount;
         String bankCode;
-        String userId;
 }

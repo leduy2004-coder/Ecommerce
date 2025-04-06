@@ -8,6 +8,7 @@ import com.ecommerce.product.entity.PaymentEntity;
 import com.ecommerce.product.exception.AppException;
 import com.ecommerce.product.exception.ErrorCode;
 import com.ecommerce.product.repository.PaymentRepository;
+import com.ecommerce.product.repository.ProductRepository;
 import com.ecommerce.product.utility.GetInfo;
 import com.ecommerce.product.utility.ProductStatus;
 import com.ecommerce.product.utility.VNPayUtil;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.ChannelNotify;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +32,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Slf4j
 public class PaymentService {
 
     @Value("${payment.vnPay.returnUrl}")
@@ -41,26 +44,36 @@ public class PaymentService {
 
     final VNPAYConfig vnPayConfig;
     final ModelMapper modelMapper;
+    final ProductRepository productRepository;
     final ProductService productService;
 
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
+        String userId = GetInfo.getLoggedInUserName();
+        var optionalProduct = productRepository.findByIdAndUserId(paymentRequest.getProductId(), userId);
+        if (optionalProduct.isEmpty())
+            throw new AppException(ErrorCode.PRODUCT_USER_NOT_EXISTED);
+
         PaymentEntity paymentEntity = modelMapper.map(paymentRequest, PaymentEntity.class);
         paymentEntity.setStatus(true);
         int days = switch (paymentRequest.getAmount()) {
-            case 30000 -> 30;
-            case 60000 -> 60;
-            case 90000 -> 90;
+            case 3000000 -> 30;
+            case 6000000 -> 60;
+            case 9000000 -> 90;
             default -> throw new IllegalArgumentException("Invalid amount. Supported amounts: 30000, 60000, 90000.");
         };
         paymentEntity.setExpiryDate(Instant.now().plus(days, ChronoUnit.DAYS));
+        paymentEntity.setUserId(userId);
+        PaymentEntity savedPaymentEntity = paymentRepository.save(paymentEntity);
+
         productService.updateStatusProduct(paymentRequest.getProductId(), ProductStatus.ACTIVE);
 
-        return modelMapper.map(paymentRepository.save(paymentEntity), PaymentResponse.class);
+        log.info("Payment created successfully");
+        return modelMapper.map(savedPaymentEntity, PaymentResponse.class);
     }
 
     public PaymentResponse createVnPayPayment(HttpServletRequest request) {
-        String userId = GetInfo.getLoggedInUserName();
-        long amount = Integer.parseInt(request.getParameter("amount")) * 100L;
+        long amount = (long) Integer.parseInt(request.getParameter("amount")) * 100L;
+
         String bankCode = request.getParameter("bankCode");
         String productId = request.getParameter("productId");
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
@@ -69,7 +82,7 @@ public class PaymentService {
             vnpParamsMap.put("vnp_BankCode", bankCode);
         }
         vnpParamsMap.put("vnp_IpAddr", VNPayUtil.getIpAddress(request));
-        vnpParamsMap.put("vnp_ReturnUrl", this.vnp_ReturnUrl + "?userId=" + userId+ "&productId=" + productId);
+        vnpParamsMap.put("vnp_ReturnUrl", this.vnp_ReturnUrl + "&productId=" + productId);
 
         //build query url
         String queryUrl = VNPayUtil.getPaymentURL(vnpParamsMap, true);
@@ -85,8 +98,10 @@ public class PaymentService {
 
     @Scheduled(cron = "0 0 0 * * ?")  // Chạy mỗi ngày lúc nửa đêm
     public void checkPaymentsExpiry() {
+        log.info("Checking payments expiry");
         Instant now = Instant.now();  // Lấy thời gian hiện tại theo UTC
         List<PaymentEntity> expiredPayments = paymentRepository.findByExpiryDateBefore(now);  // Truy vấn thanh toán hết hạn
+        log.info("Expired payments: {}", expiredPayments);
 
         expiredPayments.forEach(payment -> {
             productService.updateStatusProduct(payment.getProductId(), ProductStatus.EXPIRED);

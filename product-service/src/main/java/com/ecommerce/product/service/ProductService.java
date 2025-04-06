@@ -2,8 +2,10 @@ package com.ecommerce.product.service;
 
 
 import com.ecommerce.event.dto.NotificationEvent;
+import com.ecommerce.product.dto.PageResponse;
 import com.ecommerce.product.dto.request.ProductCreateRequest;
 import com.ecommerce.product.dto.response.ProductCreateResponse;
+import com.ecommerce.product.dto.response.ProductGetResponse;
 import com.ecommerce.product.entity.ProductEntity;
 import com.ecommerce.product.exception.AppException;
 import com.ecommerce.product.exception.ErrorCode;
@@ -15,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.ChannelNotify;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -60,29 +65,25 @@ public class ProductService {
         return productCreateResponse;
     }
 
+    public PageResponse<ProductGetResponse> getProductsByUserId(int page, int size, String userId){
+        Sort sort = Sort.by("createdDate").descending();
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        var pageData = productRepository.findAllByUserId(userId, pageable);
 
-//    public PageResponse<PostResponse> getMyPosts(int page, int size){
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String userId = authentication.getName();
-//
-//        Sort sort = Sort.by("createdDate").descending();
-//        Pageable pageable = PageRequest.of(page - 1, size, sort);
-//        var pageData = postRepository.findAllByUserId(userId, pageable);
-//
-//        List<PostResponse> postList = pageData.getContent().stream().map(post -> {
-//            var postResponse = modelMapper.map(post, PostResponse.class);
-//            postResponse.setCreated(dateTimeFormatter.format(post.getCreatedDate()));
-//            return postResponse;
-//        }).toList();
-//
-//        return PageResponse.<PostResponse>builder()
-//                .currentPage(page)
-//                .pageSize(pageData.getSize())
-//                .totalPages(pageData.getTotalPages())
-//                .totalElements(pageData.getTotalElements())
-//                .data(postList)
-//                .build();
-//    }
+        List<ProductGetResponse> productList = pageData.getContent().stream().map(post -> {
+            var productResponse = modelMapper.map(post, ProductGetResponse.class);
+//            fileClient.
+            return productResponse;
+        }).toList();
+
+        return PageResponse.<ProductGetResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(productList)
+                .build();
+    }
 
     @PreAuthorize("hasRole('ADMIN')")
     public ProductStatus acceptProduct(String productId) {

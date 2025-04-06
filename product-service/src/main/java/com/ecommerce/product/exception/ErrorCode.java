@@ -33,6 +33,8 @@ public enum ErrorCode {
     NOT_FOLLOWING(1016, "Unfollowed", HttpStatus.BAD_REQUEST),
     OTP_EXPIRED(1019, "Expired OTP", HttpStatus.BAD_REQUEST),
     PAYMENT_NOT_EXISTED(1020, "Payment not existed", HttpStatus.BAD_REQUEST),
+    PRODUCT_USER_NOT_EXISTED(1021, "Product does not exist or does not belong to the user", HttpStatus.BAD_REQUEST),
+
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

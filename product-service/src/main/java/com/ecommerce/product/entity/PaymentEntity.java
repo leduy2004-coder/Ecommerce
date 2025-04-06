@@ -1,9 +1,6 @@
 package com.ecommerce.product.entity;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,6 +10,8 @@ import java.time.Instant;
 @Setter
 @Builder
 @Document(value = "payment")
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentEntity extends BaseEntity {
     String userId;
@@ -20,7 +19,7 @@ public class PaymentEntity extends BaseEntity {
     String code;
     Integer amount;
     String bankCode;
-    Instant ExpiryDate;
+    Instant expiryDate;
     Boolean status;
 
 }
