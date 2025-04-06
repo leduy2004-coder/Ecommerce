@@ -1,5 +1,6 @@
 package com.ecommerce.product.entity;
 
+import com.ecommerce.product.utility.PaymentStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,6 +21,6 @@ public class PaymentEntity extends BaseEntity {
     Integer amount;
     String bankCode;
     Instant expiryDate;
-    Boolean status;
+    PaymentStatus status;
 
 }

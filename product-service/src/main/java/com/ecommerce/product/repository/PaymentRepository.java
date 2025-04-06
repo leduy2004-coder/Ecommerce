@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface PaymentRepository extends MongoRepository<PaymentEntity, String> {
     List<PaymentEntity> findByExpiryDateBefore(Instant date);
+    List<PaymentEntity> findAllByProductId(String productId);
 }

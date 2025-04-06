@@ -10,6 +10,7 @@ import com.ecommerce.product.exception.ErrorCode;
 import com.ecommerce.product.repository.PaymentRepository;
 import com.ecommerce.product.repository.ProductRepository;
 import com.ecommerce.product.utility.GetInfo;
+import com.ecommerce.product.utility.PaymentStatus;
 import com.ecommerce.product.utility.ProductStatus;
 import com.ecommerce.product.utility.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,9 +53,11 @@ public class PaymentService {
         var optionalProduct = productRepository.findByIdAndUserId(paymentRequest.getProductId(), userId);
         if (optionalProduct.isEmpty())
             throw new AppException(ErrorCode.PRODUCT_USER_NOT_EXISTED);
+        //set inactive all payment of product
+        inactivatePayment(paymentRequest.getProductId());
 
         PaymentEntity paymentEntity = modelMapper.map(paymentRequest, PaymentEntity.class);
-        paymentEntity.setStatus(true);
+        paymentEntity.setStatus(PaymentStatus.ACTIVE);
         int days = switch (paymentRequest.getAmount()) {
             case 3000000 -> 30;
             case 6000000 -> 60;
@@ -105,7 +108,7 @@ public class PaymentService {
 
         expiredPayments.forEach(payment -> {
             productService.updateStatusProduct(payment.getProductId(), ProductStatus.EXPIRED);
-            updateStatusPayment(payment.getId(), false);
+            updateStatusPayment(payment.getId(), PaymentStatus.EXPIRED);
 
             String message = String.format("Sản phẩm có mã %s đã hết hạn, vui lòng gia hạn để sử dụng", payment.getProductId());
 
@@ -119,7 +122,7 @@ public class PaymentService {
         });
     }
 
-    public void updateStatusPayment(String paymentId, Boolean status) {
+    public void updateStatusPayment(String paymentId, PaymentStatus status) {
         PaymentEntity paymentEntity = paymentRepository.findById(paymentId).orElse(null);
         if (paymentEntity == null) {
             throw new AppException(ErrorCode.PAYMENT_NOT_EXISTED);
@@ -127,4 +130,16 @@ public class PaymentService {
         paymentEntity.setStatus(status);
         paymentRepository.save(paymentEntity);
     }
+
+    public void inactivatePayment(String productId) {
+        List<PaymentEntity> list = paymentRepository.findAllByProductId(productId);
+        if (list.isEmpty()) {
+            return;
+        }
+        list.forEach(paymentEntity -> {
+            paymentEntity.setStatus(PaymentStatus.INACTIVE);
+            paymentRepository.save(paymentEntity);
+        });
+    }
+
 }
