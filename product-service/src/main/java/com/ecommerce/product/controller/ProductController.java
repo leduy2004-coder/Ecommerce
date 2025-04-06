@@ -3,6 +3,7 @@ package com.ecommerce.product.controller;
 import com.ecommerce.product.dto.ApiResponse;
 import com.ecommerce.product.dto.request.ProductCreateRequest;
 import com.ecommerce.product.dto.response.ProductCreateResponse;
+import com.ecommerce.product.dto.response.ProductGetResponse;
 import com.ecommerce.product.service.ProductService;
 import com.ecommerce.product.utility.ProductStatus;
 import lombok.AccessLevel;
@@ -22,13 +23,40 @@ import java.util.List;
 public class ProductController {
     ProductService productService;
 
+    @GetMapping(value = "/get-product/{productId}")
+    public ApiResponse<ProductGetResponse> getProductById(@PathVariable("productId") String productId) {
+
+        ProductGetResponse response = productService.getProductById(productId);
+
+        return ApiResponse.<ProductGetResponse>builder()
+                .result(response)
+                .build();
+    }
+
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<ProductCreateResponse> createPost(
+    public ApiResponse<ProductCreateResponse> createProduct(
             @RequestPart("request") ProductCreateRequest request,
             @RequestPart(value = "files", required = false) List<MultipartFile> files) {
 
         return ApiResponse.<ProductCreateResponse>builder()
                 .result(productService.createProduct(request, files))
+                .build();
+    }
+
+    @PostMapping(value = "/delete-of-user")
+    public ApiResponse<Boolean> deleteProduct(
+            @RequestParam("productId") String productId) {
+
+        return ApiResponse.<Boolean>builder()
+                .result(productService.deleteProductOfUser(productId))
+                .build();
+    }
+    @DeleteMapping(value = "/delete-of-admin")
+    public ApiResponse<Boolean> deleteProductOfAdmin(
+            @RequestParam("productId") String productId) {
+
+        return ApiResponse.<Boolean>builder()
+                .result(productService.deleteProductOfAdmin(productId))
                 .build();
     }
 

@@ -2,7 +2,7 @@ package com.ecommerce.file.controller;
 
 import com.ecommerce.file.dto.ApiResponse;
 import com.ecommerce.file.service.FileService;
-import com.ecommerce.file.utility.ImageType;
+import org.example.ImageType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

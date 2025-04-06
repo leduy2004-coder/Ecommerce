@@ -5,6 +5,7 @@ import com.ecommerce.product.config.VNPAYConfig;
 import com.ecommerce.product.dto.request.PaymentRequest;
 import com.ecommerce.product.dto.response.PaymentResponse;
 import com.ecommerce.product.entity.PaymentEntity;
+import com.ecommerce.product.entity.ProductEntity;
 import com.ecommerce.product.exception.AppException;
 import com.ecommerce.product.exception.ErrorCode;
 import com.ecommerce.product.repository.PaymentRepository;
@@ -46,7 +47,7 @@ public class PaymentService {
     final VNPAYConfig vnPayConfig;
     final ModelMapper modelMapper;
     final ProductRepository productRepository;
-    final ProductService productService;
+
 
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
         String userId = GetInfo.getLoggedInUserName();
@@ -68,7 +69,7 @@ public class PaymentService {
         paymentEntity.setUserId(userId);
         PaymentEntity savedPaymentEntity = paymentRepository.save(paymentEntity);
 
-        productService.updateStatusProduct(paymentRequest.getProductId(), ProductStatus.ACTIVE);
+        updateStatusProduct(savedPaymentEntity.getProductId(), ProductStatus.ACTIVE);
 
         log.info("Payment created successfully");
         return modelMapper.map(savedPaymentEntity, PaymentResponse.class);
@@ -107,7 +108,7 @@ public class PaymentService {
         log.info("Expired payments: {}", expiredPayments);
 
         expiredPayments.forEach(payment -> {
-            productService.updateStatusProduct(payment.getProductId(), ProductStatus.EXPIRED);
+            updateStatusProduct(payment.getProductId(), ProductStatus.EXPIRED);
             updateStatusPayment(payment.getId(), PaymentStatus.EXPIRED);
 
             String message = String.format("Sản phẩm có mã %s đã hết hạn, vui lòng gia hạn để sử dụng", payment.getProductId());
@@ -142,4 +143,12 @@ public class PaymentService {
         });
     }
 
+    public void updateStatusProduct(String productId, ProductStatus status) {
+        ProductEntity productEntity = productRepository.findById(productId).orElse(null);
+        if (productEntity == null) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_EXISTED);
+        }
+        productEntity.setStatus(status);
+        productRepository.save(productEntity);
+    }
 }

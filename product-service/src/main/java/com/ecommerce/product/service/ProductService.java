@@ -16,6 +16,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.ChannelNotify;
+import org.example.CloudinaryResponse;
+import org.example.ImageType;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +40,18 @@ public class ProductService {
     ModelMapper modelMapper;
     FileClient fileClient;
     KafkaTemplate<String, NotificationEvent> kafkaTemplate;
+    PaymentService paymentService;
+
+    public ProductGetResponse getProductById(String productId) {
+        ProductEntity product = productRepository.findById(productId).orElse(null);
+
+        if (product == null) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_EXISTED);
+        }
+        ProductGetResponse productGetResponse = modelMapper.map(product, ProductGetResponse.class);
+        productGetResponse.setImgUrl(fileClient.getImageProduct(productId, ImageType.PRODUCT).getResult());
+        return productGetResponse;
+    }
 
     public ProductCreateResponse createProduct(ProductCreateRequest request, List<MultipartFile> files) {
 
@@ -52,11 +66,11 @@ public class ProductService {
         product = productRepository.save(product);
         String productId = product.getId();
 
-        List<String> imgUrl = new ArrayList<>();
+        List<CloudinaryResponse> imgUrl = new ArrayList<>();
 
         for (MultipartFile file : files) {
             var response = fileClient.uploadMediaProduct(file, productId);
-            imgUrl.add(response.getResult().getUrl());
+            imgUrl.add(response.getResult());
         }
 
         ProductCreateResponse productCreateResponse = modelMapper.map(product, ProductCreateResponse.class);
@@ -72,7 +86,7 @@ public class ProductService {
 
         List<ProductGetResponse> productList = pageData.getContent().stream().map(post -> {
             var productResponse = modelMapper.map(post, ProductGetResponse.class);
-//            fileClient.
+            productResponse.setImgUrl(fileClient.getImageProduct(productResponse.getId(), ImageType.PRODUCT).getResult());
             return productResponse;
         }).toList();
 
@@ -116,5 +130,28 @@ public class ProductService {
         }
         productEntity.setStatus(status);
         productRepository.save(productEntity);
+    }
+
+    public Boolean deleteProductOfUser(String productId) {
+        try {
+            updateStatusProduct(productId, ProductStatus.INACTIVE);
+
+            paymentService.inactivatePayment(productId);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public Boolean deleteProductOfAdmin(String productId) {
+        try {
+            productRepository.deleteById(productId);
+
+            paymentService.inactivatePayment(productId);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
     }
 }

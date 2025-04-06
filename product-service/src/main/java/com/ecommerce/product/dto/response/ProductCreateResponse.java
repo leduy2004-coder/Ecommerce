@@ -2,6 +2,7 @@ package com.ecommerce.product.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.CloudinaryResponse;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,5 +17,5 @@ public class ProductCreateResponse {
     String affiliateLink;
     Double price;
     String description;
-    List<String> imgUrl;
+    List<CloudinaryResponse> imgUrl;
 }

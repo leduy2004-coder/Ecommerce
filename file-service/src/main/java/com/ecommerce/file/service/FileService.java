@@ -7,7 +7,7 @@ import com.ecommerce.file.repository.PostRepository;
 import com.ecommerce.file.repository.ProductRepository;
 import com.ecommerce.file.repository.UserRepository;
 import com.ecommerce.file.utility.AvatarType;
-import com.ecommerce.file.utility.ImageType;
+import org.example.ImageType;
 import com.ecommerce.file.utility.ImageUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,9 @@ import lombok.experimental.FieldDefaults;
 import org.example.CloudinaryResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,31 +32,32 @@ public class FileService {
         ImageUtils.assertAllowed(file, ImageUtils.IMAGE_PATTERN);
         String fileName = ImageUtils.getFileName(file.getOriginalFilename());
         CloudinaryResponse response = cloudinaryService.uploadFile(file, fileName);
+        String imgId = "";
         if (imageType.equals(ImageType.POST)) {
-            postRepository.save(PostImageEntity.builder()
+            imgId = postRepository.save(PostImageEntity.builder()
                     .postId(id)
                     .name(fileName)
                     .url(response.getUrl())
                     .publicId(response.getPublicId())
-                    .build());
+                    .build()).getId();
         }else if(imageType.equals(ImageType.AVATAR)) {
-            userRepository.save(UserImageEntity.builder()
+            imgId =userRepository.save(UserImageEntity.builder()
                     .userId(id)
                     .name(fileName)
                     .avatarType(AvatarType.LOCAL)
                     .url(response.getUrl())
                     .publicId(response.getPublicId())
-                    .build());
+                    .build()).getId();
         }else if(imageType.equals(ImageType.PRODUCT)) {
-            productRepository.save(ProductImageEntity.builder()
+            imgId =productRepository.save(ProductImageEntity.builder()
                     .productId(id)
                     .name(fileName)
                     .url(response.getUrl())
                     .publicId(response.getPublicId())
-                    .build());
+                    .build()).getId();
         }
         return CloudinaryResponse.builder()
-                .publicId(response.getPublicId())
+                .id(imgId)
                 .url(response.getUrl()).build();
     }
     public CloudinaryResponse createAvatar(String id, String url) {
@@ -65,4 +69,43 @@ public class FileService {
         return CloudinaryResponse.builder()
                 .url(url).build();
     }
+
+    public List<CloudinaryResponse> getAllByProductId(String id, ImageType imageType) {
+        if (imageType.equals(ImageType.POST)) {
+            var list = postRepository.findAllByPostId(id);
+
+            return list.stream()
+                    .map(product -> CloudinaryResponse.builder()
+                            .id(product.getId())
+                            .url(product.getUrl())
+                            .build())
+                    .collect(Collectors.toList());
+        }
+        if (imageType.equals(ImageType.AVATAR)) {
+            var list = userRepository.findAllByUserId(id);
+
+            return list.stream()
+                    .map(product -> CloudinaryResponse.builder()
+                            .id(product.getId())
+                            .url(product.getUrl())
+                            .build())
+                    .collect(Collectors.toList());
+        }
+        if (imageType.equals(ImageType.PRODUCT)) {
+            var list = productRepository.findAllByProductId(id);
+            if (list.isEmpty()) {
+                return null;
+            } else {
+                return list.stream()
+                        .map(product -> CloudinaryResponse.builder()
+                                .id(product.getId())
+                                .url(product.getUrl())
+                                .build())
+                        .collect(Collectors.toList());
+            }
+
+        }
+        return null;
+    }
+
 }
