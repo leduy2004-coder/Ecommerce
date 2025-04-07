@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.ChannelNotify;
 import org.example.CloudinaryResponse;
+import org.example.FileDeleteRequest;
 import org.example.ImageType;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
@@ -149,6 +150,8 @@ public class ProductService {
             productRepository.deleteById(productId);
 
             paymentService.inactivatePayment(productId);
+
+            fileClient.deleteImageProduct(FileDeleteRequest.builder().id(productId).type(ImageType.PRODUCT).build());
             return true;
         }catch (Exception e){
             return false;

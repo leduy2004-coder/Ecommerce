@@ -3,16 +3,16 @@ package com.ecommerce.file.controller.internal;
 
 import com.ecommerce.file.dto.ApiResponse;
 import com.ecommerce.file.service.FileService;
-import org.example.ImageType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.CloudinaryResponse;
+import org.example.FileDeleteRequest;
+import org.example.ImageType;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -26,7 +26,7 @@ public class InternalFileController {
     public ApiResponse<List<CloudinaryResponse>> getImageProduct(@RequestParam("id") String id,
                                                                @RequestParam("type") ImageType type) {
 
-        List<CloudinaryResponse> response = fileService.getAllByProductId(id, type);
+        List<CloudinaryResponse> response = fileService.getAllById(id, type);
 
         return ApiResponse.<List<CloudinaryResponse>>builder()
                 .result(response)
@@ -35,7 +35,7 @@ public class InternalFileController {
 
     @PostMapping("/file/post/upload")
     ApiResponse<CloudinaryResponse> uploadMediaPost(@RequestParam("file") MultipartFile file,
-                                                    @RequestParam("postId") String postId) throws IOException {
+                                                    @RequestParam("postId") String postId){
         return ApiResponse.<CloudinaryResponse>builder()
                 .result(fileService.uploadFile(file, ImageType.POST, postId))
                 .build();
@@ -43,7 +43,7 @@ public class InternalFileController {
 
     @PostMapping("/file/create-avatar")
     ApiResponse<CloudinaryResponse> uploadMediaUser(@RequestParam("url") String url,
-                                        @RequestParam("userId") String userId) throws IOException {
+                                        @RequestParam("userId") String userId){
         return ApiResponse.<CloudinaryResponse>builder()
                 .result(fileService.createAvatar(userId,url))
                 .build();
@@ -60,6 +60,15 @@ public class InternalFileController {
                                            @RequestPart("productId") String productId) {
         return ApiResponse.<CloudinaryResponse>builder()
                 .result(fileService.uploadFile(file, ImageType.PRODUCT, productId))
+                .build();
+    }
+
+    @DeleteMapping(value = "/file/delete-img")
+    public ApiResponse<Boolean> deleteImageProduct(@RequestBody FileDeleteRequest request) {
+
+        Boolean response = fileService.deleteById(request.getId(), request.getType());
+        return ApiResponse.<Boolean>builder()
+                .result(response)
                 .build();
     }
 }

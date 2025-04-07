@@ -70,7 +70,7 @@ public class FileService {
                 .url(url).build();
     }
 
-    public List<CloudinaryResponse> getAllByProductId(String id, ImageType imageType) {
+    public List<CloudinaryResponse> getAllById(String id, ImageType imageType) {
         if (imageType.equals(ImageType.POST)) {
             var list = postRepository.findAllByPostId(id);
 
@@ -107,5 +107,54 @@ public class FileService {
         }
         return null;
     }
+
+    public Boolean deleteById(String id, ImageType imageType) {
+        if (imageType.equals(ImageType.POST)) {
+            var list = postRepository.findAllByPostId(id);
+            if (list.isEmpty()) {
+                return false;
+            }
+            // Xóa từng hình ảnh và xóa khỏi Cloudinary
+            list.forEach(post -> {
+                if (post.getPublicId() != null) {
+                    cloudinaryService.deleteFile(post.getPublicId(), "image");
+                }
+                postRepository.deleteById(post.getId());
+            });
+            return true;
+        }
+        if (imageType.equals(ImageType.AVATAR)) {
+            var list = userRepository.findAllByUserId(id);
+
+            if (list.isEmpty()) {
+                return false;
+            }
+            list.forEach(user -> {
+                if (user.getPublicId() != null) {
+                    cloudinaryService.deleteFile(user.getPublicId(), "image");
+                }
+                userRepository.deleteById(user.getId());
+            });
+            return true;
+        }
+        if (imageType.equals(ImageType.PRODUCT)) {
+            var list = productRepository.findAllByProductId(id);
+            if (list.isEmpty()) {
+                return false;
+            }
+            list.forEach(product -> {
+                // Xóa ảnh khỏi Cloudinary
+                if (product.getPublicId() != null) {
+                    cloudinaryService.deleteFile(product.getPublicId(), "image");
+                }
+                productRepository.deleteById(product.getId());
+            });
+
+            return true;
+        }
+        return false;
+    }
+
+
 
 }

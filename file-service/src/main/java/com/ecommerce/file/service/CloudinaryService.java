@@ -7,6 +7,7 @@ import com.ecommerce.file.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.CloudinaryResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class CloudinaryService {
 
     Cloudinary cloudinary;
@@ -49,11 +51,12 @@ public class CloudinaryService {
 
     public void deleteFile(String publicId, String resourceType) {
         try {
+            log.info("Deleting file: {}/{}", publicId, resourceType);
             Map<String, Object> options = ObjectUtils.asMap(
                     "resource_type", resourceType
             );
             cloudinary.uploader().destroy(publicId, options);
-            System.out.println("Deleted successfully.");
+            log.info("Deleted successfully.");
         } catch (Exception e) {
             e.printStackTrace();
         }
