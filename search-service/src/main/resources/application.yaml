@@ -1,0 +1,18 @@
+server:
+  port: 8086
+  servlet:
+    context-path: /search
+spring:
+  application:
+    name: search-service
+  data:
+    elasticsearch:
+
+      repositories:
+        enabled: true
+
+
+#app:
+#  services:
+#    profile:
+#      url: http://localhost:8081/profile
