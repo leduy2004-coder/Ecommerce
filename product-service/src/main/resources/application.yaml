@@ -7,7 +7,7 @@ spring:
     name: product-service
   data:
     mongodb:
-      uri: mongodb://127.0.0.1:27017/product-service
+      uri: mongodb://root:abc123!%40%23@localhost:27017/product-service?authSource=admin
   kafka:
     bootstrap-servers: localhost:9094
     producer:

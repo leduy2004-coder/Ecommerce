@@ -10,7 +10,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductCreateRequest {
     String affiliateLink;
-    Double price;
+    long price;
+    String name;
     String description;
     String categoryId;
 }

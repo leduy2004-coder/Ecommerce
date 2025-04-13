@@ -18,9 +18,11 @@ import java.time.Instant;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductEntity extends BaseEntity {
     String userId;
+    String name;
     String affiliateLink;
-    Double price;
+    long price;
     String description;
     ProductStatus status;
     String categoryId;
+    boolean visible;
 }

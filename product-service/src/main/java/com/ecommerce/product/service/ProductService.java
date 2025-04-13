@@ -2,6 +2,7 @@ package com.ecommerce.product.service;
 
 
 import com.ecommerce.event.dto.NotificationEvent;
+import com.ecommerce.event.dto.ProductEvent;
 import com.ecommerce.product.dto.PageResponse;
 import com.ecommerce.product.dto.request.ProductCreateRequest;
 import com.ecommerce.product.dto.response.ProductCreateResponse;
@@ -41,6 +42,7 @@ public class ProductService {
     ModelMapper modelMapper;
     FileClient fileClient;
     KafkaTemplate<String, NotificationEvent> kafkaTemplate;
+    KafkaTemplate<String, ProductEvent> productKafkaTemplate;
     PaymentService paymentService;
 
     public ProductGetResponse getProductById(String productId) {
@@ -60,6 +62,8 @@ public class ProductService {
         ProductEntity product = ProductEntity.builder()
                 .affiliateLink(request.getAffiliateLink())
                 .price(request.getPrice())
+                .name(request.getName())
+                .visible(true)
                 .description(request.getDescription())
                 .userId(authentication.getName())
                 .status(ProductStatus.PENDING)
@@ -83,7 +87,7 @@ public class ProductService {
     public PageResponse<ProductGetResponse> getProductsByUserId(int page, int size, String userId){
         Sort sort = Sort.by("createdDate").descending();
         Pageable pageable = PageRequest.of(page - 1, size, sort);
-        var pageData = productRepository.findAllByUserId(userId, pageable);
+        var pageData = productRepository.findAllByUserIdAndStatusNot(userId, org.example.ProductStatus.INACTIVE, pageable);
 
         List<ProductGetResponse> productList = pageData.getContent().stream().map(post -> {
             var productResponse = modelMapper.map(post, ProductGetResponse.class);
@@ -138,6 +142,8 @@ public class ProductService {
             updateStatusProduct(productId, ProductStatus.INACTIVE);
 
             paymentService.inactivatePayment(productId);
+
+            syncProductToElastic(ProductEvent.builder().id(productId).visible(false).build());
             return true;
         }catch (Exception e){
             return false;
@@ -152,9 +158,21 @@ public class ProductService {
             paymentService.inactivatePayment(productId);
 
             fileClient.deleteImageProduct(FileDeleteRequest.builder().id(productId).type(ImageType.PRODUCT).build());
+
+            syncProductToElastic(ProductEvent.builder().id(productId).deleted(true).build());
             return true;
         }catch (Exception e){
             return false;
         }
+    }
+
+    public void syncProductToElastic (ProductEvent product) {
+        //sync data product to elastic search
+        if(!product.isDeleted()){
+            var img = fileClient.getImageProduct(product.getId(), ImageType.PRODUCT);
+            product.setThumbnailUrl(img.getResult().getFirst().getUrl());
+        }
+
+        productKafkaTemplate.send("product-sync", product);
     }
 }
