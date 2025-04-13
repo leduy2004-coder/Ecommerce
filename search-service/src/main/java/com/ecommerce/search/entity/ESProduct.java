@@ -33,8 +33,11 @@ public class ESProduct {
     @Field(type = FieldType.Long)
     long price;
 
+    @Field(type = FieldType.Integer)
+    Integer totalComment;
+
     @Field(type = FieldType.Double)
-    private double averageRating;
+    double averageRating;
 
     @Field(type = FieldType.Date)
     Instant createdDate;

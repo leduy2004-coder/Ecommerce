@@ -26,7 +26,7 @@ public class ProductSearchController {
 
     @GetMapping("/products")
     public ApiResponse<PageResponse<ProductSearchResponse>> searchItems(@RequestParam(required = false) String keyword,
-                                                                        @RequestParam(required = false, defaultValue = "price") String sortBy,
+                                                                        @RequestParam(required = false, defaultValue = "rate") String sortBy,
                                                                         @RequestParam(required = false, defaultValue = "0") int page,
                                                                         @RequestParam(required = false, defaultValue = "desc") String order,
                                                                         @RequestParam(required = false, defaultValue = "60") int limit,
@@ -40,7 +40,9 @@ public class ProductSearchController {
             throw new AppException(ErrorCode.INVALID_RANGE);
 
         ProductSearchFilters filters = new ProductSearchFilters( minPrice, maxPrice,minRating,categoryIds);
-        PageResponse<ProductSearchResponse> response = esProductService.homepageSearch(keyword, sortBy, order, page, limit,
+
+
+        PageResponse<ProductSearchResponse> response = esProductService.homepageSearch(keyword, sortBy, order, page,limit,
                 filters);
         return ApiResponse.<PageResponse<ProductSearchResponse>>builder()
                 .result(response)

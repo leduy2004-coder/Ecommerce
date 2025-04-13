@@ -1,13 +1,15 @@
-package com.ecommerce.communitcation_service;
+package com.ecommerce.communication;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
-public class CommunitcationServiceApplication {
+@EnableFeignClients
+public class CommunicationServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CommunitcationServiceApplication.class, args);
+		SpringApplication.run(CommunicationServiceApplication.class, args);
 	}
 
 }

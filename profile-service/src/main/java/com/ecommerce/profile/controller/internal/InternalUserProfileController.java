@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.ProfileCreationRequest;
 import org.example.ProfileCreationResponse;
+import org.example.ProfileGetResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,8 +23,8 @@ public class InternalUserProfileController {
     }
 
     @GetMapping("/internal/users/{userId}")
-    ApiResponse<ProfileCreationResponse> getProfile(@PathVariable String userId) {
-        return ApiResponse.<ProfileCreationResponse>builder()
+    ApiResponse<ProfileGetResponse> getProfile(@PathVariable String userId) {
+        return ApiResponse.<ProfileGetResponse>builder()
                 .result(userProfileService.getByUserId(userId))
                 .build();
     }

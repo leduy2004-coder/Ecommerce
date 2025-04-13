@@ -1,6 +1,7 @@
 package com.ecommerce.product.service;
 
 import com.ecommerce.event.dto.NotificationEvent;
+import com.ecommerce.event.dto.ProductEvent;
 import com.ecommerce.product.config.VNPAYConfig;
 import com.ecommerce.product.dto.request.PaymentRequest;
 import com.ecommerce.product.dto.response.PaymentResponse;
@@ -10,6 +11,8 @@ import com.ecommerce.product.exception.AppException;
 import com.ecommerce.product.exception.ErrorCode;
 import com.ecommerce.product.repository.PaymentRepository;
 import com.ecommerce.product.repository.ProductRepository;
+import com.ecommerce.product.repository.httpClient.CommunicationClient;
+import com.ecommerce.product.repository.httpClient.FileClient;
 import com.ecommerce.product.utility.GetInfo;
 import com.ecommerce.product.utility.PaymentStatus;
 import com.ecommerce.product.utility.ProductStatus;
@@ -20,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.ChannelNotify;
+import org.example.ImageType;
+import org.example.ProductGetReview;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -43,10 +48,13 @@ public class PaymentService {
     final PaymentRepository paymentRepository;
 
     final KafkaTemplate<String, NotificationEvent> kafkaTemplate;
+    final KafkaTemplate<String, ProductEvent> productKafkaTemplate;
 
     final VNPAYConfig vnPayConfig;
+    final FileClient fileClient;
     final ModelMapper modelMapper;
     final ProductRepository productRepository;
+    final CommunicationClient communicationClient;
 
 
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
@@ -149,6 +157,19 @@ public class PaymentService {
             throw new AppException(ErrorCode.PRODUCT_NOT_EXISTED);
         }
         productEntity.setStatus(status);
-        productRepository.save(productEntity);
+        ProductEntity productSave = productRepository.save(productEntity);
+
+        //sync data product to elastic search
+        ProductEvent productEvent = modelMapper.map(productSave, ProductEvent.class);
+        syncProductToElastic(productEvent);
+    }
+
+    public void syncProductToElastic(ProductEvent product) {
+        var img = fileClient.getImageProduct(product.getId(), ImageType.PRODUCT);
+        product.setThumbnailUrl(img.getResult().getFirst().getUrl());
+        ProductGetReview productGetReview = communicationClient.getImageProduct(product.getId()).getResult();
+        product.setTotalComment(productGetReview.getTotalComment());
+        product.setAverageRating(productGetReview.getAverageRating());
+        productKafkaTemplate.send("product-sync", product);
     }
 }

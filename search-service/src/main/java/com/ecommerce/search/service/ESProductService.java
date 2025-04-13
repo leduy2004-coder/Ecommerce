@@ -38,8 +38,8 @@ public class ESProductService {
                                                               int page, int limit,
                                                               ProductSearchFilters filters){
         switch (sortBy){
-            case "relevance":
-                sortBy = "_score";
+            case "rate":
+                sortBy = "averageRating";
                 break;
             case "newest":
                 sortBy = "createdDate";

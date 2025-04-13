@@ -83,13 +83,17 @@ public class FileService {
         }
         if (imageType.equals(ImageType.AVATAR)) {
             var list = userRepository.findAllByUserId(id);
+            if (list.isEmpty()) {
+                return null;
+            } else {
+                return list.stream()
+                        .map(product -> CloudinaryResponse.builder()
+                                .id(product.getId())
+                                .url(product.getUrl())
+                                .build())
+                        .collect(Collectors.toList());
+            }
 
-            return list.stream()
-                    .map(product -> CloudinaryResponse.builder()
-                            .id(product.getId())
-                            .url(product.getUrl())
-                            .build())
-                    .collect(Collectors.toList());
         }
         if (imageType.equals(ImageType.PRODUCT)) {
             var list = productRepository.findAllByProductId(id);

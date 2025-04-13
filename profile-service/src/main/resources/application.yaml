@@ -10,4 +10,11 @@ spring:
     uri: bolt://localhost:7687
     authentication:
       username: neo4j
-      password: test1234
+      password: ad123456
+
+app:
+  services:
+    file:
+      url: http://localhost:8084/file
+
+

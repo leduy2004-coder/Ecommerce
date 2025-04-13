@@ -27,6 +27,8 @@ app:
   services:
     file:
       url: http://localhost:8084/file
+    communication:
+      url: http://localhost:8087/communication
 
 payment:
   vnPay:

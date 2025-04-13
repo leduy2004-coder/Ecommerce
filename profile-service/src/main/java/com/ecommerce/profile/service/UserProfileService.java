@@ -4,22 +4,24 @@ import com.ecommerce.profile.entity.UserProfile;
 import com.ecommerce.profile.exception.AppException;
 import com.ecommerce.profile.exception.ErrorCode;
 import com.ecommerce.profile.repository.UserProfileRepository;
-import org.example.ProfileCreationRequest;
-import org.example.ProfileCreationResponse;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
-
-
+import com.ecommerce.profile.repository.httpClient.FileClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.*;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class UserProfileService {
+
+    FileClient fileClient;
     UserProfileRepository userProfileRepository;
     ModelMapper userProfileMapper;
 
@@ -37,11 +39,19 @@ public class UserProfileService {
         return userProfileMapper.map(userProfile, ProfileCreationResponse.class);
     }
 
-    public ProfileCreationResponse getByUserId(String userId) {
+    public ProfileGetResponse getByUserId(String userId) {
         UserProfile userProfile =
                 userProfileRepository.findByUserId(userId)
                         .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        ProfileGetResponse profileGetResponse = userProfileMapper.map(userProfile, ProfileGetResponse.class);
+        List<CloudinaryResponse> avatars = fileClient.getImageProduct(userId, ImageType.AVATAR).getResult();
 
-        return userProfileMapper.map(userProfile, ProfileCreationResponse.class);
+        if (avatars != null && !avatars.isEmpty()) {
+            profileGetResponse.setAvatar(avatars.getFirst().getUrl());
+        } else {
+            profileGetResponse.setAvatar(null);
+        }
+
+        return profileGetResponse;
     }
 }

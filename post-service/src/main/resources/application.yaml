@@ -7,7 +7,7 @@ spring:
     name: post-service
   data:
     mongodb:
-      uri: mongodb://127.0.0.1:27017/post-service
+      uri: mongodb://root:abc123!%40%23@localhost:27017/post-service?authSource=admin
 
 app:
   services:

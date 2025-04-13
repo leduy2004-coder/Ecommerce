@@ -13,9 +13,11 @@ public class ProductEvent {
     String id;
     String userId;
     String name;
-    String affiliateLink;
     String thumbnailUrl;
+    String affiliateLink;
     long price;
+    Integer totalComment;
+    double averageRating;
     String description;
     ProductStatus status;
     String categoryId;

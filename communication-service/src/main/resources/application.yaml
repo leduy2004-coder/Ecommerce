@@ -1,0 +1,15 @@
+server:
+  port: 8087
+  servlet:
+    context-path: /communication
+spring:
+  application:
+    name: communication-service
+  data:
+    mongodb:
+      uri: mongodb://root:abc123!%40%23@localhost:27017/communication-service?authSource=admin
+
+app:
+  services:
+    profile:
+      url: http://localhost:8081/profile

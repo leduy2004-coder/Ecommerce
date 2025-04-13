@@ -15,3 +15,54 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+
+  neo4j:
+    image: neo4j:5.19
+    container_name: neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/ad123456 # Đặt mật khẩu cho Neo4j (thay đổi nếu cần)
+    ports:
+      - '7474:7474'  # Web UI
+      - '7687:7687'  # Bolt protocol
+    volumes:
+      - neo4j-data:/data
+
+  mongodb:
+    image: bitnami/mongodb:7.0.11
+    container_name: mongodb
+    environment:
+      - MONGODB_ROOT_PASSWORD=abc123!@# # Đặt mật khẩu root cho MongoDB
+      - MONGODB_USER=user # Đặt tên người dùng cho MongoDB
+      - MONGODB_PASSWORD=ad123456 # Đặt mật khẩu cho người dùng MongoDB
+      - MONGODB_DATABASE=ecommerce  # Đặt database mặc định
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb-data:/bitnami/mongodb/data
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.3.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+    ports:
+      - '9200:9200'  # Cổng HTTP mặc định
+      - '9300:9300'  # Cổng TCP transport mặc định
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.3.3
+    container_name: kibana
+    ports: [ '5601:5601' ]
+    depends_on: [ 'elasticsearch' ]
+
+
+volumes:
+  neo4j-data:
+    driver: local
+  mongodb-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
