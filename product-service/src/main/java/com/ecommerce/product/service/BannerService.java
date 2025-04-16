@@ -9,17 +9,18 @@ import com.ecommerce.product.dto.response.BannerGetActiveResponse;
 import com.ecommerce.product.dto.response.BannerGetResponse;
 import com.ecommerce.product.dto.response.ProductGetResponse;
 import com.ecommerce.product.entity.BannerEntity;
+import com.ecommerce.product.entity.PaymentEntity;
 import com.ecommerce.product.entity.ProductEntity;
 import com.ecommerce.product.exception.AppException;
 import com.ecommerce.product.exception.ErrorCode;
 import com.ecommerce.product.repository.BannerRepository;
 import com.ecommerce.product.repository.httpClient.FileClient;
-import com.ecommerce.product.utility.BannerStatus;
-import com.ecommerce.product.utility.GetInfo;
-import com.ecommerce.product.utility.ProductStatus;
+import com.ecommerce.product.utility.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.example.ChannelNotify;
 import org.example.CloudinaryResponse;
 import org.example.FileDeleteRequest;
@@ -30,10 +31,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,13 +46,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class BannerService {
     BannerRepository bannerRepository;
     ModelMapper modelMapper;
     FileClient fileClient;
     KafkaTemplate<String, NotificationEvent> kafkaTemplate;
-    KafkaTemplate<String, ProductEvent> productKafkaTemplate;
-    PaymentService paymentService;
+
 
     @PreAuthorize("hasRole('ADMIN')")
     public PageResponse<BannerGetResponse> getAllBanner(int page, int size) {
@@ -195,6 +200,40 @@ public class BannerService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?") // Chạy mỗi ngày lúc 0h UTC
+    public void checkBannersExpiry() {
+        log.info("Checking expired banners...");
+
+        // Giờ hiện tại
+        Date now = new Date();
+
+        // Chuẩn hóa ngày bắt đầu và kết thúc hôm nay
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        Date startOfDay = Date.from(today.atStartOfDay(ZoneOffset.UTC).toInstant());
+        Date endOfDay = Date.from(today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant());
+
+        // 1. Các banner đã hết hạn (dateEnd < now) và đang ACTIVE
+        List<BannerEntity> expiredBanners =
+                bannerRepository.findAllByDateEndBeforeAndStatus(now, BannerStatus.ACTIVE);
+        log.info("Found {} expired banners", expiredBanners.size());
+
+        // 2. Các banner có ngày bắt đầu là hôm nay và đang PAYMENT
+        List<BannerEntity> toBeActivatedBanners =
+                bannerRepository.findAllByDateStartBetweenAndStatus(startOfDay, BannerStatus.PAYMENT, endOfDay);
+        log.info("Found {} banners to activate", toBeActivatedBanners.size());
+
+        // 3. Cập nhật status
+        expiredBanners.forEach(banner -> {
+            banner.setStatus(BannerStatus.INACTIVE);
+            bannerRepository.save(banner);
+        });
+
+        toBeActivatedBanners.forEach(banner -> {
+            banner.setStatus(BannerStatus.ACTIVE);
+            bannerRepository.save(banner);
+        });
     }
 
 

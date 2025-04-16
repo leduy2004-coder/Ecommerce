@@ -5,6 +5,7 @@ import com.ecommerce.product.dto.request.PaymentRequest;
 import com.ecommerce.product.dto.response.PaymentResponse;
 import com.ecommerce.product.entity.PaymentEntity;
 import com.ecommerce.product.service.PaymentService;
+import com.ecommerce.product.utility.PaymentType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
@@ -39,15 +40,27 @@ public class PaymentController {
                                                            @RequestParam(value = "vnp_ResponseCode") String code,
                                                            @RequestParam(value = "vnp_Amount") String amount,
                                                            @RequestParam(value = "vnp_BankCode") String bankCode,
-                                                           @RequestParam(value = "productId") String productId
+                                                           @RequestParam(value = "targetId") String targetId,
+                                                           @RequestParam(value = "type") PaymentType type
     ) throws IOException {
         response.sendRedirect(vnp_ReturnUrl);
-        PaymentResponse paymentDTO = paymentService.createPayment(PaymentRequest.builder()
-                .productId(productId)
-                .amount(Integer.parseInt(amount))
-                .code(code)
-                .bankCode(bankCode)
-                .build());
+        PaymentResponse paymentDTO;
+        if (type.equals(PaymentType.PRODUCT)) {
+            paymentDTO = paymentService.createPaymentProduct(PaymentRequest.builder()
+                    .targetId(targetId)
+                    .amount(Integer.parseInt(amount))
+                    .code(code)
+                    .bankCode(bankCode)
+                    .build());
+        } else {
+            paymentDTO = paymentService.createPaymentBanner(PaymentRequest.builder()
+                    .targetId(targetId)
+                    .amount(Integer.parseInt(amount))
+                    .code(code)
+                    .bankCode(bankCode)
+                    .build());
+        }
+
         return ApiResponse.<PaymentResponse>builder().result(paymentDTO).build();
 
     }

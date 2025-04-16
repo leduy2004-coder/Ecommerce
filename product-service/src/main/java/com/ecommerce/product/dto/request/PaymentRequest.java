@@ -13,7 +13,7 @@ public class PaymentRequest {
         String code;
         String message;
         String paymentUrl;
-        String productId;
+        String targetId;
         Integer amount;
         String bankCode;
 }

@@ -28,5 +28,10 @@ public interface BannerRepository extends MongoRepository<BannerEntity, String> 
 
     List<BannerEntity> findAllByUserId(String userId);
 
+    List<BannerEntity> findAllByDateEndBeforeAndStatus(Date now, BannerStatus status);
+
+    @Query("{ 'status': ?1, 'dateStart': { $gte: ?0, $lt: ?2 } }")
+    List<BannerEntity> findAllByDateStartBetweenAndStatus(Date startOfDay, BannerStatus status, Date endOfDay);
+
 
 }

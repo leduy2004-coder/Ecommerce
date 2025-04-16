@@ -5,18 +5,17 @@ import com.ecommerce.event.dto.ProductEvent;
 import com.ecommerce.product.config.VNPAYConfig;
 import com.ecommerce.product.dto.request.PaymentRequest;
 import com.ecommerce.product.dto.response.PaymentResponse;
+import com.ecommerce.product.entity.BannerEntity;
 import com.ecommerce.product.entity.PaymentEntity;
 import com.ecommerce.product.entity.ProductEntity;
 import com.ecommerce.product.exception.AppException;
 import com.ecommerce.product.exception.ErrorCode;
+import com.ecommerce.product.repository.BannerRepository;
 import com.ecommerce.product.repository.PaymentRepository;
 import com.ecommerce.product.repository.ProductRepository;
 import com.ecommerce.product.repository.httpClient.CommunicationClient;
 import com.ecommerce.product.repository.httpClient.FileClient;
-import com.ecommerce.product.utility.GetInfo;
-import com.ecommerce.product.utility.PaymentStatus;
-import com.ecommerce.product.utility.ProductStatus;
-import com.ecommerce.product.utility.VNPayUtil;
+import com.ecommerce.product.utility.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -55,15 +54,16 @@ public class PaymentService {
     final ModelMapper modelMapper;
     final ProductRepository productRepository;
     final CommunicationClient communicationClient;
+    final BannerRepository bannerRepository;
 
 
-    public PaymentResponse createPayment(PaymentRequest paymentRequest) {
+    public PaymentResponse createPaymentProduct(PaymentRequest paymentRequest) {
         String userId = GetInfo.getLoggedInUserName();
-        var optionalProduct = productRepository.findByIdAndUserId(paymentRequest.getProductId(), userId);
+        var optionalProduct = productRepository.findByIdAndUserId(paymentRequest.getTargetId(), userId);
         if (optionalProduct.isEmpty())
             throw new AppException(ErrorCode.PRODUCT_USER_NOT_EXISTED);
         //set inactive all payment of product
-        inactivatePayment(paymentRequest.getProductId());
+        inactivatePayment(paymentRequest.getTargetId());
 
         PaymentEntity paymentEntity = modelMapper.map(paymentRequest, PaymentEntity.class);
         paymentEntity.setStatus(PaymentStatus.ACTIVE);
@@ -75,11 +75,26 @@ public class PaymentService {
         };
         paymentEntity.setExpiryDate(Instant.now().plus(days, ChronoUnit.DAYS));
         paymentEntity.setUserId(userId);
+        paymentEntity.setType(PaymentType.PRODUCT);
         PaymentEntity savedPaymentEntity = paymentRepository.save(paymentEntity);
 
-        updateStatusProduct(savedPaymentEntity.getProductId(), ProductStatus.ACTIVE);
+        updateStatusProduct(savedPaymentEntity.getTargetId(), ProductStatus.ACTIVE);
 
-        log.info("Payment created successfully");
+        log.info("Payment product created successfully");
+        return modelMapper.map(savedPaymentEntity, PaymentResponse.class);
+    }
+
+    public PaymentResponse createPaymentBanner(PaymentRequest paymentRequest) {
+        String userId = GetInfo.getLoggedInUserName();
+
+        PaymentEntity paymentEntity = modelMapper.map(paymentRequest, PaymentEntity.class);
+        paymentEntity.setType(PaymentType.BANNER);
+        paymentEntity.setUserId(userId);
+        PaymentEntity savedPaymentEntity = paymentRepository.save(paymentEntity);
+
+        updateStatusBanner(savedPaymentEntity.getTargetId(), BannerStatus.PAYMENT);
+
+        log.info("Payment banner created successfully");
         return modelMapper.map(savedPaymentEntity, PaymentResponse.class);
     }
 
@@ -87,14 +102,15 @@ public class PaymentService {
         long amount = (long) Integer.parseInt(request.getParameter("amount")) * 100L;
 
         String bankCode = request.getParameter("bankCode");
-        String productId = request.getParameter("productId");
+        String id = request.getParameter("targetId");
+        String type = request.getParameter("type");
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
         if (bankCode != null && !bankCode.isEmpty()) {
             vnpParamsMap.put("vnp_BankCode", bankCode);
         }
         vnpParamsMap.put("vnp_IpAddr", VNPayUtil.getIpAddress(request));
-        vnpParamsMap.put("vnp_ReturnUrl", this.vnp_ReturnUrl + "&productId=" + productId);
+        vnpParamsMap.put("vnp_ReturnUrl", this.vnp_ReturnUrl + "&targetId=" + id + "&type=" + type);
 
         //build query url
         String queryUrl = VNPayUtil.getPaymentURL(vnpParamsMap, true);
@@ -112,18 +128,18 @@ public class PaymentService {
     public void checkPaymentsExpiry() {
         log.info("Checking payments expiry");
         Instant now = Instant.now();  // Lấy thời gian hiện tại theo UTC
-        List<PaymentEntity> expiredPayments = paymentRepository.findByExpiryDateBefore(now);  // Truy vấn thanh toán hết hạn
+        List<PaymentEntity> expiredPayments = paymentRepository.findByExpiryDateBeforeAndType(now, PaymentType.PRODUCT);  // Truy vấn thanh toán hết hạn
         log.info("Expired payments: {}", expiredPayments);
 
         expiredPayments.forEach(payment -> {
-            updateStatusProduct(payment.getProductId(), ProductStatus.EXPIRED);
+            updateStatusProduct(payment.getTargetId(), ProductStatus.EXPIRED);
             updateStatusPayment(payment.getId(), PaymentStatus.EXPIRED);
 
-            String message = String.format("Sản phẩm có mã %s đã hết hạn, vui lòng gia hạn để sử dụng", payment.getProductId());
+            String message = String.format("Sản phẩm có mã %s đã hết hạn, vui lòng gia hạn để sử dụng", payment.getTargetId());
 
             NotificationEvent event = NotificationEvent.builder()
                     .channel(ChannelNotify.EXPIRY)
-                    .subject(payment.getProductId())
+                    .subject(payment.getTargetId())
                     .recipient(payment.getUserId())
                     .body(message)
                     .build();
@@ -141,7 +157,7 @@ public class PaymentService {
     }
 
     public void inactivatePayment(String productId) {
-        List<PaymentEntity> list = paymentRepository.findAllByProductId(productId);
+        List<PaymentEntity> list = paymentRepository.findAllByTargetIdAndType(productId, PaymentType.PRODUCT);
         if (list.isEmpty()) {
             return;
         }
@@ -163,7 +179,14 @@ public class PaymentService {
         ProductEvent productEvent = modelMapper.map(productSave, ProductEvent.class);
         syncProductToElastic(productEvent);
     }
-
+    public void updateStatusBanner(String bannerId, BannerStatus status) {
+        BannerEntity bannerEntity = bannerRepository.findById(bannerId).orElse(null);
+        if (bannerEntity == null) {
+            throw new AppException(ErrorCode.BANNER_NOT_EXISTED);
+        }
+        bannerEntity.setStatus(status);
+        bannerRepository.save(bannerEntity);
+    }
     public void syncProductToElastic(ProductEvent product) {
         var img = fileClient.getImage(product.getId(), ImageType.PRODUCT);
         product.setThumbnailUrl(img.getResult().getFirst().getUrl());
