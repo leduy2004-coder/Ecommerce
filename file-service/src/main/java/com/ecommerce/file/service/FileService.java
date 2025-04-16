@@ -1,8 +1,10 @@
 package com.ecommerce.file.service;
 
+import com.ecommerce.file.entity.BannerImageEntity;
 import com.ecommerce.file.entity.PostImageEntity;
 import com.ecommerce.file.entity.ProductImageEntity;
 import com.ecommerce.file.entity.UserImageEntity;
+import com.ecommerce.file.repository.BannerRepository;
 import com.ecommerce.file.repository.PostRepository;
 import com.ecommerce.file.repository.ProductRepository;
 import com.ecommerce.file.repository.UserRepository;
@@ -27,6 +29,7 @@ public class FileService {
     UserRepository userRepository;
     PostRepository postRepository;
     ProductRepository productRepository;
+    BannerRepository bannerRepository;
 
     public CloudinaryResponse uploadFile(MultipartFile file, ImageType imageType, String id) {
         ImageUtils.assertAllowed(file, ImageUtils.IMAGE_PATTERN);
@@ -51,6 +54,14 @@ public class FileService {
         }else if(imageType.equals(ImageType.PRODUCT)) {
             imgId =productRepository.save(ProductImageEntity.builder()
                     .productId(id)
+                    .name(fileName)
+                    .url(response.getUrl())
+                    .publicId(response.getPublicId())
+                    .build()).getId();
+        }
+        else if(imageType.equals(ImageType.BANNER)) {
+            imgId =bannerRepository.save(BannerImageEntity.builder()
+                    .bannerId(id)
                     .name(fileName)
                     .url(response.getUrl())
                     .publicId(response.getPublicId())
@@ -107,7 +118,19 @@ public class FileService {
                                 .build())
                         .collect(Collectors.toList());
             }
-
+        }
+        if (imageType.equals(ImageType.BANNER)) {
+            var list = bannerRepository.findAllByBannerId(id);
+            if (list.isEmpty()) {
+                return null;
+            } else {
+                return list.stream()
+                        .map(banner -> CloudinaryResponse.builder()
+                                .id(banner.getId())
+                                .url(banner.getUrl())
+                                .build())
+                        .collect(Collectors.toList());
+            }
         }
         return null;
     }
@@ -117,14 +140,15 @@ public class FileService {
             var list = postRepository.findAllByPostId(id);
             if (list.isEmpty()) {
                 return false;
+            }else {
+                // Xóa từng hình ảnh và xóa khỏi Cloudinary
+                list.forEach(post -> {
+                    if (post.getPublicId() != null) {
+                        cloudinaryService.deleteFile(post.getPublicId(), "image");
+                    }
+                    postRepository.deleteById(post.getId());
+                });
             }
-            // Xóa từng hình ảnh và xóa khỏi Cloudinary
-            list.forEach(post -> {
-                if (post.getPublicId() != null) {
-                    cloudinaryService.deleteFile(post.getPublicId(), "image");
-                }
-                postRepository.deleteById(post.getId());
-            });
             return true;
         }
         if (imageType.equals(ImageType.AVATAR)) {
@@ -152,6 +176,21 @@ public class FileService {
                     cloudinaryService.deleteFile(product.getPublicId(), "image");
                 }
                 productRepository.deleteById(product.getId());
+            });
+
+            return true;
+        }
+        if (imageType.equals(ImageType.BANNER)) {
+            var list = bannerRepository.findAllByBannerId(id);
+            if (list.isEmpty()) {
+                return false;
+            }
+            list.forEach(product -> {
+                // Xóa ảnh khỏi Cloudinary
+                if (product.getPublicId() != null) {
+                    cloudinaryService.deleteFile(product.getPublicId(), "image");
+                }
+                bannerRepository.deleteById(product.getId());
             });
 
             return true;

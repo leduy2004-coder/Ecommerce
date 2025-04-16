@@ -1,5 +1,5 @@
 package org.example;
 
 public enum ImageType {
-    AVATAR, POST, PRODUCT
+    AVATAR, POST, PRODUCT, BANNER
 }

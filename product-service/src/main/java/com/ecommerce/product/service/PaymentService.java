@@ -165,7 +165,7 @@ public class PaymentService {
     }
 
     public void syncProductToElastic(ProductEvent product) {
-        var img = fileClient.getImageProduct(product.getId(), ImageType.PRODUCT);
+        var img = fileClient.getImage(product.getId(), ImageType.PRODUCT);
         product.setThumbnailUrl(img.getResult().getFirst().getUrl());
         ProductGetReview productGetReview = communicationClient.getImageProduct(product.getId()).getResult();
         product.setTotalComment(productGetReview.getTotalComment());

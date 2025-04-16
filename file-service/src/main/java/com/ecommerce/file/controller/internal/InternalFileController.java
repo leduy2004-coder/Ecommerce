@@ -40,7 +40,13 @@ public class InternalFileController {
                 .result(fileService.uploadFile(file, ImageType.POST, postId))
                 .build();
     }
-
+    @PostMapping("/file/banner/upload")
+    ApiResponse<CloudinaryResponse> uploadBanner(@RequestParam("file") MultipartFile file,
+                                                    @RequestParam("bannerId") String bannerId){
+        return ApiResponse.<CloudinaryResponse>builder()
+                .result(fileService.uploadFile(file, ImageType.BANNER, bannerId))
+                .build();
+    }
     @PostMapping("/file/create-avatar")
     ApiResponse<CloudinaryResponse> uploadMediaUser(@RequestParam("url") String url,
                                         @RequestParam("userId") String userId){

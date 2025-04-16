@@ -52,7 +52,7 @@ public class ProductService {
             throw new AppException(ErrorCode.PRODUCT_NOT_EXISTED);
         }
         ProductGetResponse productGetResponse = modelMapper.map(product, ProductGetResponse.class);
-        productGetResponse.setImgUrl(fileClient.getImageProduct(productId, ImageType.PRODUCT).getResult());
+        productGetResponse.setImgUrl(fileClient.getImage(productId, ImageType.PRODUCT).getResult());
         return productGetResponse;
     }
 
@@ -91,7 +91,7 @@ public class ProductService {
 
         List<ProductGetResponse> productList = pageData.getContent().stream().map(post -> {
             var productResponse = modelMapper.map(post, ProductGetResponse.class);
-            productResponse.setImgUrl(fileClient.getImageProduct(productResponse.getId(), ImageType.PRODUCT).getResult());
+            productResponse.setImgUrl(fileClient.getImage(productResponse.getId(), ImageType.PRODUCT).getResult());
             return productResponse;
         }).toList();
 
@@ -169,7 +169,7 @@ public class ProductService {
     public void syncProductToElastic (ProductEvent product) {
         //sync data product to elastic search
         if(!product.isDeleted()){
-            var img = fileClient.getImageProduct(product.getId(), ImageType.PRODUCT);
+            var img = fileClient.getImage(product.getId(), ImageType.PRODUCT);
             product.setThumbnailUrl(img.getResult().getFirst().getUrl());
         }
 

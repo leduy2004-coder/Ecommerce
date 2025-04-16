@@ -17,11 +17,15 @@ import java.util.List;
 public interface FileClient {
     @PostMapping(value = "/internal/file/product/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<CloudinaryResponse> uploadMediaProduct(@RequestPart("file") MultipartFile file,
-                                                      @RequestPart("productId") String productId);
+                                                       @RequestPart("productId") String productId);
+
+    @PostMapping(value = "/internal/file/banner/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ApiResponse<CloudinaryResponse> uploadBanner(@RequestPart("file") MultipartFile file,
+                                                 @RequestPart("bannerId") String bannerId);
 
     @GetMapping(value = "/internal/file/get-img")
-    ApiResponse<List<CloudinaryResponse>> getImageProduct(@RequestParam("id") String id,
-                                      @RequestParam("type") ImageType imageType);
+    ApiResponse<List<CloudinaryResponse>> getImage(@RequestParam("id") String id,
+                                                          @RequestParam("type") ImageType imageType);
 
     @DeleteMapping(value = "/internal/file/delete-img")
     ApiResponse<Boolean> deleteImageProduct(@RequestBody FileDeleteRequest request);
