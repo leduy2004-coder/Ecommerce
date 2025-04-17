@@ -2,7 +2,6 @@ package com.ecommerce.communication.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.example.ProfileGetResponse;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -10,10 +9,12 @@ import org.example.ProfileGetResponse;
 @Setter
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CommentGetResponse {
-        String id;
+public class CommentProductCreateResponse {
+        String productId;
         String comment;
         int rating;
+        String id;
         String created;
-        ProfileGetResponse user;
+        int averageRating;
+        int totalComment;
 }

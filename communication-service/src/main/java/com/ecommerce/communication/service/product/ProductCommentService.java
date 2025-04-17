@@ -1,16 +1,15 @@
-package com.ecommerce.communication.service;
+package com.ecommerce.communication.service.product;
 
 import com.ecommerce.communication.dto.PageResponse;
-import com.ecommerce.communication.dto.request.CommentCreateRequest;
-import com.ecommerce.communication.dto.response.CommentCreateResponse;
-import com.ecommerce.communication.dto.response.CommentGetResponse;
+import com.ecommerce.communication.dto.request.CommentProductCreateRequest;
+import com.ecommerce.communication.dto.response.CommentProductCreateResponse;
+import com.ecommerce.communication.dto.response.CommentProductGetResponse;
 import com.ecommerce.communication.entity.ProductReviewEntity;
 import com.ecommerce.communication.entity.ProductCommentEntity;
-import com.ecommerce.communication.exception.AppException;
-import com.ecommerce.communication.exception.ErrorCode;
 import com.ecommerce.communication.repository.ProductReviewRepository;
 import com.ecommerce.communication.repository.ProductCommentRepository;
 import com.ecommerce.communication.repository.httpClient.ProfileClient;
+import com.ecommerce.communication.service.DateTimeFormatter;
 import com.ecommerce.communication.utility.GetInfo;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class CommentService {
+public class ProductCommentService {
 
     ProductCommentRepository productCommentRepository;
     ProductReviewRepository productReviewRepository;
@@ -37,7 +36,7 @@ public class CommentService {
     DateTimeFormatter dateTimeFormatter;
     ProfileClient profileClient;
 
-    public CommentCreateResponse saveProductReview(CommentCreateRequest commentCreateRequest) {
+    public CommentProductCreateResponse saveProductReview(CommentProductCreateRequest commentCreateRequest) {
         String userId = GetInfo.getLoggedInUserName();
 
         ProductCommentEntity productComment = modelMapper.map(commentCreateRequest, ProductCommentEntity.class);
@@ -70,30 +69,31 @@ public class CommentService {
 
         log.info("Comment successfully saved {}", productCommentSave.getComment());
 
-        return CommentCreateResponse.builder()
+        return CommentProductCreateResponse.builder()
                 .productId(productReviewEntity.getProductId())
                 .rating(commentCreateRequest.getRating())
                 .comment(commentCreateRequest.getComment())
                 .created(dateTimeFormatter.format(productCommentSave.getCreatedDate()))
                 .totalComment(productReviewEntity.getTotalComment())
                 .averageRating(newAverageRating)
+                .id(productCommentSave.getId())
                 .build();
     }
 
-    public PageResponse<CommentGetResponse> getCommentProduct(int page, int size, String productId) {
+    public PageResponse<CommentProductGetResponse> getCommentProduct(int page, int size, String productId) {
         Sort sort = Sort.by("createdDate").descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
         var listComments = productCommentRepository.findAllByProductId(productId,pageable);
-        List<CommentGetResponse> postList = listComments.getContent().stream().map(comment -> {
-            var postResponse = modelMapper.map(comment, CommentGetResponse.class);
+        List<CommentProductGetResponse> postList = listComments.getContent().stream().map(comment -> {
+            var postResponse = modelMapper.map(comment, CommentProductGetResponse.class);
             postResponse.setCreated(dateTimeFormatter.format(comment.getCreatedDate()));
             ProfileGetResponse profile = profileClient.getProfile(comment.getUserId()).getResult();
             postResponse.setUser(profile);
             return postResponse;
         }).toList();
 
-        return PageResponse.<CommentGetResponse>builder()
+        return PageResponse.<CommentProductGetResponse>builder()
                 .currentPage(1)
                 .pageSize(listComments.getSize())
                 .totalPages(listComments.getTotalPages())

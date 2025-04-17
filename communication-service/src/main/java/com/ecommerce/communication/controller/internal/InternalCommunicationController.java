@@ -2,7 +2,7 @@ package com.ecommerce.communication.controller.internal;
 
 
 import com.ecommerce.communication.dto.ApiResponse;
-import com.ecommerce.communication.service.ReviewService;
+import com.ecommerce.communication.service.product.ReviewService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

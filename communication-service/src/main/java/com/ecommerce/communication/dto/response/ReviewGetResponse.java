@@ -17,7 +17,7 @@ public class ReviewGetResponse {
     int totalComment;
 
     Map<Integer, Long> countAverageRatings;
-    PageResponse<CommentGetResponse> listComments;
+    PageResponse<CommentProductGetResponse> listComments;
 }
 
 

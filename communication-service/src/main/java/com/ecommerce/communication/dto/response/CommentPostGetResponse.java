@@ -10,11 +10,10 @@ import org.example.ProfileGetResponse;
 @Setter
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CommentCreateResponse {
-        String productId;
+public class CommentPostGetResponse {
+        String id;
         String comment;
-        int rating;
+        String parentId;
         String created;
-        int averageRating;
-        int totalComment;
+        ProfileGetResponse user;
 }

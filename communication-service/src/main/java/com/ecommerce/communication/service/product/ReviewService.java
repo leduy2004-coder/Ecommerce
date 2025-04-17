@@ -1,7 +1,7 @@
-package com.ecommerce.communication.service;
+package com.ecommerce.communication.service.product;
 
 import com.ecommerce.communication.dto.PageResponse;
-import com.ecommerce.communication.dto.response.CommentGetResponse;
+import com.ecommerce.communication.dto.response.CommentProductGetResponse;
 import com.ecommerce.communication.dto.response.ReviewGetResponse;
 import com.ecommerce.communication.entity.ProductReviewEntity;
 import com.ecommerce.communication.repository.ProductReviewRepository;
@@ -23,13 +23,13 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ReviewService {
     ProductReviewRepository productReviewRepository;
-    CommentService commentService;
+    ProductCommentService commentService;
     MongoTemplate mongoTemplate;
 
     public ReviewGetResponse getProductReviewAndComment(String productId) {
         ProductGetReview productGetReview = getProductReview(productId);
 
-        PageResponse<CommentGetResponse> response = commentService.getCommentProduct(0, 10, productId);
+        PageResponse<CommentProductGetResponse> response = commentService.getCommentProduct(0, 10, productId);
 
         Map<Integer, Long> countAverageRatings = countAverageRatings();
         return ReviewGetResponse.builder()
