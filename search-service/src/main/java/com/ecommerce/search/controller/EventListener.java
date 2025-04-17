@@ -2,7 +2,9 @@ package com.ecommerce.search.controller;
 
 
 import com.ecommerce.event.dto.ProductEvent;
+import com.ecommerce.event.dto.TagEvent;
 import com.ecommerce.search.service.ESProductService;
+import com.ecommerce.search.service.ESTagService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -14,8 +16,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ProductEventListener {
+public class EventListener {
     ESProductService esProductService;
+    ESTagService esTagService;
 
     @KafkaListener(topics = "product-sync")
     public void listenNotificationDelivery(ProductEvent message) {
@@ -23,4 +26,9 @@ public class ProductEventListener {
         esProductService.indexOrUpdateProduct(message);
     }
 
+    @KafkaListener(topics = "tag-sync")
+    public void listenNotificationDeliveryTag(TagEvent message) {
+        log.info("Message tag received: {}", message);
+        esTagService.indexOrUpdateTag(message);
+    }
 }

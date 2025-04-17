@@ -25,6 +25,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
 
     private static final String[] WHITE_LIST_URL = {
+            "/tags/top",
+            "/get-posts-by-tag"
     };
 
     CorsConfigurationSource corsConfigurationSource;

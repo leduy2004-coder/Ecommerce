@@ -14,16 +14,11 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-@Document(value = "post")
+@Document(value = "tag")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PostEntity {
+public class TagEntity {
     @MongoId
     String id;
-    String userId;
-    String title;
-    String content;
-    String affiliateLink;
-    Instant createdDate;
-    Instant modifiedDate;
-    List<String> hashTags;
+    String name;
+    Integer count;
 }

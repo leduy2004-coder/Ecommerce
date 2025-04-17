@@ -11,6 +11,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -35,4 +37,17 @@ public class PostController {
                 .result(postService.getMyPosts(page, size))
                 .build();
     }
+    @GetMapping("/get-posts-by-tag")
+    public ApiResponse<PageResponse<PostResponse>> getPostsByTag(
+            @RequestParam List<String> tags,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        return ApiResponse.<PageResponse<PostResponse>>builder()
+                .result(postService.getPostsByTag(tags, page, size))
+                .build();
+    }
+
+
+
 }

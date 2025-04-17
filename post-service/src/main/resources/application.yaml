@@ -8,7 +8,11 @@ spring:
   data:
     mongodb:
       uri: mongodb://root:abc123!%40%23@localhost:27017/post-service?authSource=admin
-
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 app:
   services:
     profile:
